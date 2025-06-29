@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>誠.保羅 期權四式互動教學</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .main-menu-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .main-menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .strategy-page {
+            display: none;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .interactive-section {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .quiz-option {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .quiz-option:hover {
+            border-color: #93c5fd;
+        }
+        .quiz-option.selected {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+        }
+        .quiz-option.correct {
+            border-color: #16a34a;
+            background-color: #f0fdf4;
+        }
+        .quiz-option.incorrect {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-btn.active {
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .btn-back {
+            background-color: #6b7280;
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: #4b5563;
+        }
+        .case-study {
+            background-color: #f8fafc;
+            border-left: 4px solid #1d4ed8;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-5xl">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 id="main-title" class="text-3xl sm:text-4xl font-bold text-gray-900">誠.保羅 期權四式互動教學</h1>
+            <p id="main-subtitle" class="mt-2 text-lg text-gray-600">由誠.保羅原創的互動指南</p>
+        </header>
+
+        <!-- Main Menu -->
+        <div id="main-menu">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="main-menu-card p-6" onclick="showStrategy('longCall')">
+                    <h2 class="text-2xl font-bold text-green-600">Long Call (買入認購)</h2>
+                    <p class="mt-2 text-gray-600">當您強烈看好股價會<strong class="text-green-600">上漲</strong>時使用。風險有限，利潤潛力無限。</p>
+                </div>
+                <div class="main-menu-card p-6" onclick="showStrategy('shortCall')">
+                    <h2 class="text-2xl font-bold text-red-600">Short Call (賣出認購)</h2>
+                    <p class="mt-2 text-gray-600">當您認為股價會<strong class="text-red-600">盤整或下跌</strong>時使用。利潤有限，風險潛力無限。</p>
+                </div>
+                <div class="main-menu-card p-6" onclick="showStrategy('longPut')">
+                    <h2 class="text-2xl font-bold text-green-600">Long Put (買入認沽)</h2>
+                    <p class="mt-2 text-gray-600">當您強烈看好股價會<strong class="text-green-600">下跌</strong>時使用。風險有限，利潤潛力大。</p>
+                </div>
+                <div class="main-menu-card p-6" onclick="showStrategy('shortPut')">
+                    <h2 class="text-2xl font-bold text-red-600">Short Put (賣出認沽)</h2>
+                    <p class="mt-2 text-gray-600">當您認為股價會<strong class="text-red-600">盤整或上漲</strong>時使用。常用於「收息」或低價接貨。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategy Pages Container -->
+        <div id="strategy-pages">
+            <!-- Template for pages will be cloned and populated by JS -->
+        </div>
+
+        <button id="back-to-menu" class="hidden btn-back font-bold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300 mt-8" onclick="showMenu()">
+            &larr; 返回主選單
+        </button>
+
+        <!-- Footer -->
+        <footer class="text-center mt-12 py-6 border-t">
+            <p class="text-sm text-gray-500">本內容由誠.保羅原創，僅供教學用途，不構成任何投資建議。所有投資均涉及風險，請謹慎操作。</p>
+        </footer>
+    </div>
+    
+    <!-- Page Template -->
+    <template id="strategy-template">
+        <div class="strategy-page space-y-12">
+            <!-- Section 1: Basic Mechanism -->
+            <section class="card p-6">
+                <h2 class="section-title text-2xl font-bold mb-4 border-l-4 pl-4">誠.保羅之策略精髓</h2>
+                <div class="grid md:grid-cols-2 gap-6 items-center">
+                    <div>
+                        <p class="description text-gray-700 leading-relaxed"></p>
+                        <h4 class="font-semibold mt-4 mb-2 text-gray-800">適用情境：</h4>
+                        <ul class="scenarios list-disc list-inside space-y-1 text-sm text-gray-600"></ul>
+                    </div>
+                    <img class="pnl-graph rounded-lg shadow-md w-full" alt="損益圖">
+                </div>
+            </section>
+            
+            <!-- Section 2: Key Factors & Greeks -->
+            <section class="card p-6">
+                <h2 class="section-title text-2xl font-bold mb-4 border-l-4 pl-4">誠.保羅之要素剖析</h2>
+                <div class="border-b border-gray-200 mb-4">
+                    <nav class="flex space-x-4 -mb-px" aria-label="Tabs">
+                        <button class="greeks-tab-btn active tab-btn py-2 px-1 text-center font-medium text-sm" data-tab="greeks">希臘字母 (The Greeks)</button>
+                        <button class="greeks-tab-btn tab-btn py-2 px-1 text-center font-medium text-sm" data-tab="expiration">結算與風險管理</button>
+                    </nav>
+                </div>
+                <!-- Greeks Tab -->
+                <div class="greeks-tab-content active" data-tab-content="greeks">
+                    <div class="space-y-6">
+                        <div class="interactive-section p-4"><h4 class="font-bold">Δ Delta (方向性風險)</h4><p class="text-sm text-gray-600 mb-2">衡量<strong>股價</strong>變動$1，期權金的理論變動值。</p><p class="text-sm text-gray-600">Call 的 Delta 為 0~1，Put 的 Delta 為 -1~0。越價內，絕對值越接近 1。</p></div>
+                        <div class="interactive-section p-4"><h4 class="font-bold">Θ Theta (時間價值損耗)</h4><p class="text-sm text-gray-600 mb-2">衡量每過一天，期權金因時間流逝而減少的價值。越接近到期日，Theta 消耗越快。</p><div class="theta-interactive"><label class="block text-sm font-medium text-gray-700">模擬時間流逝對權利金的影響：</label><input type="range" min="0" max="45" value="45" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"><div class="time-result text-center mt-2 p-2 rounded-lg bg-gray-100 font-mono text-sm"></div></div></div>
+                        <div class="interactive-section p-4"><h4 class="font-bold">ν Vega (波動率風險)</h4><p class="text-sm text-gray-600 mb-2">衡量<strong>引伸波幅(IV)</strong>變動1%，期權金的理論變動值。</p><div class="vega-interactive text-center"><p class="text-sm mb-2">點擊按鈕，觀察IV變化對權利金的影響 (假設其他條件不變)</p><div class="flex justify-center gap-4"><button class="vega-btn-low bg-blue-500 text-white py-1 px-3 rounded-lg text-sm">低 IV</button><button class="vega-btn-high bg-red-500 text-white py-1 px-3 rounded-lg text-sm">高 IV</button></div><div class="vega-result mt-2 p-2 rounded-lg bg-gray-100 font-mono text-sm"></div></div></div>
+                    </div>
+                </div>
+                <!-- Expiration Tab -->
+                <div class="greeks-tab-content" data-tab-content="expiration">
+                     <div class="space-y-4">
+                        <div class="p-4 rounded-lg bg-blue-50 border border-blue-200"><h4 class="font-bold text-blue-800">結算日情境</h4><p class="text-sm text-blue-700 mt-2 expiration-otm"></p><p class="text-sm text-blue-700 mt-2 expiration-itm"></p></div>
+                        <div class="p-4 rounded-lg bg-yellow-50 border border-yellow-200"><h4 class="font-bold text-yellow-800">誠.保羅之風險管理心法</h4><ul class="list-disc list-inside mt-2 space-y-1 text-sm text-yellow-700 risk-management"></ul></div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 3: Case Study -->
+            <section class="card p-6">
+                 <h2 class="section-title text-2xl font-bold mb-4 border-l-4 pl-4">誠.保羅之實戰案例</h2>
+                 <div class="case-study-content"></div>
+            </section>
+            
+            <!-- Section 4: Calculator -->
+            <section class="card p-6">
+                 <h2 class="section-title text-2xl font-bold mb-4 border-l-4 pl-4">實戰模擬計算機</h2>
+                 <div class="calculator-section"></div>
+            </section>
+            
+            <!-- Section 5: Quiz -->
+            <section class="card p-6">
+                <h2 class="section-title text-2xl font-bold mb-4 border-l-4 pl-4">誠.保羅隨堂測驗</h2>
+                <div class="quiz-section"></div>
+            </section>
+        </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const strategyData = {
+            longCall: {
+                title: "Long Call (買入認購)",
+                themeColor: "green-600",
+                description: `在誠.保羅的交易體系中，Long Call 是最強大的進攻武器。它讓您用有限的資金，去捕捉股價無限的上漲潛力。`,
+                scenarios: ["預期股價將在短期內大幅上漲。", "想利用槓桿效應，以較小資金博取巨大回報。", "財報公佈前或重大事件前，投機股價上漲。"],
+                pnlGraph: "https://i.imgur.com/vH9ZJ45.png",
+                premiumLabel: "付出權利金 (Premium)",
+                expirationOTM: "<strong>價外 (股價 < 行使價)：</strong>期權作廢，您損失全部權利金。",
+                expirationITM: "<strong>價內 (股價 > 行使價)：</strong>您可以選擇行權買入股票，或直接平倉賣出期權，賺取差價。",
+                riskManagement: ["時間是敵人：Theta會每日侵蝕您的權利金，不宜長期持有深度價外的期權。", "止蝕：若股價走勢不如預期，應設定止蝕點，賣出期權以避免損失全部權利金。", "留意波幅：在高IV時買入，若其後IV下降，即使股價上漲，期權金也可能下跌(Vega Risk)。"],
+                caseStudy: `
+                    <div class="case-study">
+                        <h4 class="font-bold text-lg mb-2">案例：看好 NVDA 突破新高</h4>
+                        <p class="text-sm text-gray-700"><strong>情境：</strong>一位學員在誠.保羅的指導下，分析認為 NVIDIA (NVDA) 在發布新AI晶片後會繼續上漲，當前股價為 $157。他想用較少資金參與這次上漲行情。</p>
+                        <ul class="text-sm my-3 space-y-1">
+                            <li><strong>操作：</strong>買入 1 張 NVDA，一個月後到期，行使價為 $160 的 Call 期權。</li>
+                            <li><strong>成本：</strong>假設權利金為每股 $4.20，總成本為 $4.20 x 100 = $420。</li>
+                        </ul>
+                        <p class="text-sm text-gray-700"><strong>損益剖析：</strong></p>
+                        <ul class="text-xs mt-2 list-disc list-inside">
+                            <li><strong>打和點：</strong>$160 (行使價) + $4.20 (權利金) = $164.20。股價需漲過此價位才開始獲利。</li>
+                            <li><strong>如果到期時股價漲到 $170：</strong>利潤為 ($170 - $164.20) x 100 = $580。</li>
+                            <li><strong>如果股價未漲過 $160：</strong>最大虧損就是付出的權利金 $420。</li>
+                        </ul>
+                    </div>`,
+                quiz: [
+                    { q: "作為 Long Call 的買方，什麼對您最不利？", o: ["股價大漲", "時間流逝", "波動率增加"], a: "時間流逝", e: "時間價值(Theta)會不斷侵蝕 Long Call 的價值。即使股價不變，您的期權也會隨著時間貶值。" },
+                    { q: "Long Call 的最大虧損是多少？", o: ["無限", "行使價", "付出的權利金"], a: "付出的權利金", e: "買方的風險是鎖定的，最壞情況就是損失所有投入的權利金。" },
+                    { q: "當股價等於行使價時 (ATM)，Long Call 的 Delta 大約是多少？", o: ["接近 0", "大約 0.5", "接近 1"], a: "大約 0.5", e: "價平期權的 Delta 約為 0.5，代表股價漲$1，期權金約漲$0.5。" }
+                ]
+            },
+            shortCall: {
+                title: "Short Call (賣出認購)",
+                themeColor: "red-600",
+                description: `誠.保羅將 Short Call 視為一種「收租」策略。當您認為資產價格不會大漲時，可以賣出權利給別人，賺取穩定的權利金收入。`,
+                scenarios: ["預期股價將會盤整或溫和下跌。", "對持有的股票(Covered Call)產生額外收入。", "認為市場過度樂觀，股價被高估。"],
+                pnlGraph: "https://i.imgur.com/1Gv2hYw.png",
+                premiumLabel: "收到權利金 (Premium)",
+                expirationOTM: "<strong>價外 (股價 < 行使價)：</strong>期權作廢，您賺取全部權利金，這是最理想情況。",
+                expirationITM: "<strong>價內 (股價 > 行使價)：</strong>您有義務以行使價賣出股票。可選擇從市場買入股票交付(若裸賣)，或平倉了結虧損。",
+                riskManagement: ["風險無限：裸賣(Naked) Short Call 風險極高，因股價上漲無上限，虧損亦無上限。新手應避免。", "Covered Call：賣出 Short Call 的同時持有等量正股，是較安全的策略，最大風險變為股票下跌的風險。", "保證金追繳：若股價大幅上漲，券商會要求您增加保證金(Margin Call)，需預留充足資金。"],
+                caseStudy: `
+                     <div class="case-study">
+                        <h4 class="font-bold text-lg mb-2">案例：為持有的 TSLA 股份「收租」</h4>
+                        <p class="text-sm text-gray-700"><strong>情境：</strong>一位投資者應用誠.保羅的「持股收租」策略。她持有 100 股 Tesla (TSLA)，目前股價 $325。她認為短期內股價難以突破前高 $340，想利用持股賺取額外收入。</p>
+                        <ul class="text-sm my-3 space-y-1">
+                            <li><strong>操作：</strong>進行 Covered Call，賣出 1 張 TSLA，一個月後到期，行使價為 $340 的 Call 期權。</li>
+                            <li><strong>收入：</strong>假設收到權利金為每股 $4.80，總收入為 $4.80 x 100 = $480。</li>
+                        </ul>
+                        <p class="text-sm text-gray-700"><strong>損益剖析：</strong></p>
+                        <ul class="text-xs mt-2 list-disc list-inside">
+                            <li><strong>如果到期時股價未漲過 $340：</strong>期權作廢，她賺得 $480 權利金，並繼續持有她的 TSLA 股票。</li>
+                             <li><strong>如果股價漲到 $350：</strong>期權被行權，她必須以 $340 的價格賣出股票。她的總賣出價等於 $340 + $4.80 = $344.80，錯過了 $340 以上的漲幅，但仍有利潤。</li>
+                        </ul>
+                    </div>`,
+                quiz: [
+                    { q: "Short Call (Naked) 最大的風險是什麼？", o: ["股價大跌", "股價盤整不動", "股價無限上漲"], a: "股價無限上漲", e: "如果股價無限上漲，您需要以越來越高的市價買入股票交付，理論上虧損無限。" },
+                    { q: "Short Call 策略中，什麼是您的朋友？", o: ["股價上漲", "時間流逝", "波動率增加"], a: "時間流逝", e: "時間流逝(Theta Decay)會讓期權價值下降，有利於賣方。" },
+                    { q: "「Covered Call」策略是指？", o: ["買入股票和買入Call", "賣出Call並持有等量的股票", "賣出Call並買入Put"], a: "賣出Call並持有等量的股票", e: "用持有的股票作為擔保去賣出 Short Call，是一種常見的收息及對沖策略。" }
+                ]
+            },
+            longPut: {
+                title: "Long Put (買入認沽)",
+                themeColor: "green-600",
+                description: `誠.保羅強調，Long Put 不僅是投機工具，更是強大的「資產保險」。在不確定性增加時，它能有效保護您的投資組合。`,
+                scenarios: ["預期股價將在短期內大幅下跌。", "為持有的股票買保險，對沖下跌風險。", "投機市場將出現恐慌或回調。"],
+                pnlGraph: "https://i.imgur.com/DYEaTba.png",
+                premiumLabel: "付出權利金 (Premium)",
+                expirationOTM: "<strong>價外 (股價 > 行使價)：</strong>期權作廢，您損失全部權利金。",
+                expirationITM: "<strong>價內 (股價 < 行使價)：</strong>您可以選擇行權賣出股票，或直接平倉了結期權獲利。",
+                riskManagement: ["時間是敵人：與 Long Call 一樣，Theta 會侵蝕您的權利金。", "選擇合適的行使價：為股票對沖時，可選擇輕微價外的Put，成本較低。", "恐慌時賣出：當市場恐慌、IV飆升時，是平倉 Long Put 的好時機，可以最大化利潤。"],
+                caseStudy: `
+                     <div class="case-study">
+                        <h4 class="font-bold text-lg mb-2">案例：為持有的 NVDA 股份買保險</h4>
+                        <p class="text-sm text-gray-700"><strong>情境：</strong>一位學員跟隨誠.保羅的風險管理原則，雖然他長期看好 NVDA，但擔心市場短期可能回調。他持有 100 股，目前股價 $157，想保護利潤又不想賣掉股票。</p>
+                        <ul class="text-sm my-3 space-y-1">
+                            <li><strong>操作：</strong>買入 1 張 NVDA，一個月後到期，行使價為 $155 的 Put 期權 (Protective Put)。</li>
+                            <li><strong>成本：</strong>假設保險費(權利金)為每股 $1.50，總成本為 $1.50 x 100 = $150。</li>
+                        </ul>
+                        <p class="text-sm text-gray-700"><strong>損益剖析：</strong></p>
+                        <ul class="text-xs mt-2 list-disc list-inside">
+                             <li><strong>有效賣出價保障：</strong>他鎖定了最低賣出價約為 $155 - $1.50 = $153.50。</li>
+                            <li><strong>如果股價大跌到 $140：</strong>若沒有保險，他會承受巨大損失。但有了這張Put，他可以行權以$155賣出，有效對沖了股票的虧損。</li>
+                            <li><strong>如果股價繼續上漲：</strong>他只損失了$150的保險費，但股票的上漲利潤他依然能享受到。</li>
+                        </ul>
+                    </div>`,
+                quiz: [
+                    { q: "您持有股票並擔心短期回調，可用哪個策略對沖風險？", o: ["Long Put", "Short Put", "Short Call"], a: "Long Put", e: "買入 Long Put 就像為您的股票買保險。如果股價下跌，Long Put 的獲利可以彌補您股票的虧損。" },
+                    { q: "Long Put 的打和點 (Break-even Point) 是如何計算的？", o: ["行使價 + 權利金", "行使價 - 權利金", "權利金本身"], a: "行使價 - 權利金", e: "您需要股價跌破行使價，並且跌幅要足以覆蓋您當初付出的權利金成本，才能開始獲利。" },
+                    { q: "如果市場的引伸波幅(IV)大幅下降，對您的 Long Put 有何影響？", o: ["有利", "不利", "無影響"], a: "不利", e: "Long position (不論Call/Put) 都受益於IV上升，受損於IV下降 (Vega Risk)。" }
+                ]
+            },
+            shortPut: {
+                title: "Short Put (賣出認沽)",
+                themeColor: "red-600",
+                description: `在誠.保羅的體系中，Short Put 是一個多功能的策略，既能「收息」，也能讓您以更優惠的價格「等待好價」買入心儀的股票。`,
+                scenarios: ["認為股價不會大跌，想賺取權利金「收息」。", "想用比市價更低的價格買入心儀的股票。", "在股價支撐位附近進行操作。"],
+                pnlGraph: "https://i.imgur.com/7gZ9p4u.png",
+                premiumLabel: "收到權利金 (Premium)",
+                expirationOTM: "<strong>價外 (股價 > 行使價)：</strong>期權作廢，您賺取全部權利金，這是最理想情況。",
+                expirationITM: "<strong>價内 (股價 < 行使價)：</strong>您有義務以行使價買入股票。可選擇平倉了結虧損，或準備資金接貨。",
+                riskManagement: ["轉倉(Rollover)：若不想接貨，可平掉即將到期的倉位，開立一個更遠期、更低行使價的新倉，用時間換空間。", "止蝕：基於股價而非期權價設定止蝕點。例如股價跌穿某個重要支撐位，就應果斷平倉，避免更大損失。", "無限復活是陷阱：連續轉倉看似能避免虧損，但若遇上大熊市，只會讓虧損越滾越大，切勿濫用。"],
+                caseStudy: `
+                    <div class="case-study">
+                        <h4 class="font-bold text-lg mb-2">案例：想低價接貨 TSLA</h4>
+                        <p class="text-sm text-gray-700"><strong>情境：</strong>一位投資者採用誠.保羅的「等待好價」策略。她長期看好 Tesla (TSLA)，但覺得目前股價 $325 稍高。她心儀的買入價是 $310 左右，並且樂意在等待的過程中賺取一些收入。</p>
+                        <ul class="text-sm my-3 space-y-1">
+                            <li><strong>操作：</strong>賣出 1 張 TSLA，一個月後到期，行使價為 $310 的 Put 期權。</li>
+                            <li><strong>收入：</strong>假設收到權利金為每股 $5.50，總收入為 $5.50 x 100 = $550。</li>
+                        </ul>
+                        <p class="text-sm text-gray-700"><strong>損益剖析：</strong></p>
+                        <ul class="text-xs mt-2 list-disc list-inside">
+                             <li><strong>如果到期時股價在 $310 之上：</strong>期權作廢，她賺得 $550，沒有買入股票。她可以下個月重複操作。</li>
+                            <li><strong>如果股價跌到 $300：</strong>她需要以 $310 接貨。但因為她已收了 $5.50 權利金，她的實際接貨成本是 $310 - $5.50 = $304.50，比她心儀的 $310 還要低。</li>
+                        </ul>
+                    </div>`,
+                quiz: [
+                    { q: "Short Put 策略最大的風險是什麼？", o: ["賺太少", "股價大跌，需要高價接貨", "股價大漲，錯過漲幅"], a: "股價大跌，需要高價接貨", e: "Short Put 的核心風險在於股價下跌。若跌幅過大，虧損會遠超權利金收入。" },
+                    { q: "當倉位虧損時，不斷『轉倉(Rollover)』策略有什麼潛在問題？", o: ["操作太麻煩", "錯過反彈機會", "若遇大跌市，會導致巨大虧損且資金被鎖死"], a: "若遇大跌市，會導致巨大虧損且資金被鎖死", e: "誠.保羅稱之為「糖衣毒藥」，在真正的大跌市中會讓虧損滾雪球。" },
+                    { q: "Short Put 賣方在什麼情況下最開心？", o: ["股價暴漲", "時間流逝且股價盤整", "引伸波幅(IV)大增"], a: "時間流逝且股價盤整", e: "時間流逝(Theta)和IV下降(Vega)都有利於賣方，若股價穩定在行使價之上，就能穩賺權利金。" }
+                ]
+            }
+        };
+
+        const pagesContainer = document.getElementById('strategy-pages');
+        const template = document.getElementById('strategy-template');
+
+        function showStrategy(strategy) {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('main-title').textContent = strategyData[strategy].title;
+            document.getElementById('main-subtitle').textContent = "誠.保羅 互動學習與模擬";
+            document.getElementById('back-to-menu').style.display = 'block';
+
+            pagesContainer.innerHTML = ''; 
+            const page = template.content.cloneNode(true).firstElementChild;
+            page.id = `${strategy}-page`;
+            pagesContainer.appendChild(page);
+            
+            populatePage(page, strategy);
+            page.style.display = 'block';
+        }
+        
+        function populatePage(page, strategy) {
+            const data = strategyData[strategy];
+            const themeColor = data.themeColor;
+            
+            page.querySelectorAll('.section-title').forEach(el => el.classList.add(`border-${themeColor}`));
+            page.querySelector('.description').innerHTML = data.description;
+            page.querySelector('.scenarios').innerHTML = data.scenarios.map(s => `<li>${s}</li>`).join('');
+            page.querySelector('.pnl-graph').src = data.pnlGraph;
+            page.querySelector('.expiration-otm').innerHTML = data.expirationOTM;
+            page.querySelector('.expiration-itm').innerHTML = data.expirationITM;
+            page.querySelector('.risk-management').innerHTML = data.riskManagement.map(s => `<li>${s}</li>`).join('');
+            page.querySelector('.case-study-content').innerHTML = data.caseStudy;
+
+            initializeGreeks(page, strategy);
+            initializeCalculator(page, strategy);
+            initializeQuiz(page, strategy);
+        }
+
+        function showMenu() {
+            document.getElementById('main-menu').style.display = 'block';
+            document.getElementById('main-title').textContent = "誠.保羅 期權四式互動教學";
+            document.getElementById('main-subtitle').textContent = "由誠.保羅原創的互動指南";
+            pagesContainer.innerHTML = '';
+            document.getElementById('back-to-menu').style.display = 'none';
+        }
+
+        function initializeGreeks(page, strategy) {
+            const tabButtons = page.querySelectorAll('.greeks-tab-btn');
+            const tabContents = page.querySelectorAll('.greeks-tab-content');
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    tabContents.forEach(content => {
+                        content.classList.toggle('active', content.dataset.tabContent === btn.dataset.tab);
+                    });
+                });
+            });
+
+            const timeSlider = page.querySelector('.theta-interactive input[type=range]');
+            const timeResult = page.querySelector('.theta-interactive .time-result');
+            const isBuyer = strategy.startsWith('long');
+            const initialPremiumTheta = 4.0;
+            const updateTheta = () => {
+                const daysLeft = parseInt(timeSlider.value);
+                const currentPremium = initialPremiumTheta * Math.sqrt(daysLeft / 45);
+                let text = `剩餘${daysLeft}天, 預估時間價值: $${currentPremium.toFixed(2)}. `;
+                text += isBuyer ? '<span class="text-red-600">價值減少，對您不利。</span>' : '<span class="text-green-600">價值減少，對您有利。</span>';
+                timeResult.innerHTML = text;
+            };
+            timeSlider.addEventListener('input', updateTheta);
+            updateTheta();
+
+            const vegaResult = page.querySelector('.vega-interactive .vega-result');
+            const updateVega = (ivLevel) => {
+                const basePremium = 2.5;
+                const premium = ivLevel === 'high' ? basePremium * 1.8 : basePremium * 0.8;
+                let text = `引伸波幅(IV)處於<strong class="${ivLevel === 'high' ? 'text-red-500' : 'text-blue-500'}">${ivLevel === 'high' ? '高' : '低'}</strong>位, 預估權利金: $${premium.toFixed(2)}. `;
+                 text += isBuyer 
+                    ? (ivLevel === 'high' ? '權利金變貴。' : '權利金變便宜。')
+                    : (ivLevel === 'high' ? '權利金變貴，對您有利。' : '權利金變便宜，對您不利。');
+                 vegaResult.innerHTML = text;
+            };
+            page.querySelector('.vega-btn-low').addEventListener('click', () => updateVega('low'));
+            page.querySelector('.vega-btn-high').addEventListener('click', () => updateVega('high'));
+            updateVega('low');
+        }
+
+        function initializeCalculator(page, strategy) {
+            const container = page.querySelector('.calculator-section');
+            const data = strategyData[strategy];
+            container.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div><label class="block text-sm font-medium text-gray-700">行使價 (Strike)</label><input type="number" class="calc-strike mt-1 block w-full rounded-md border-gray-300" value="100"></div>
+                        <div><label class="block text-sm font-medium text-gray-700">${data.premiumLabel}</label><input type="number" class="calc-premium mt-1 block w-full rounded-md border-gray-300" value="2.5" step="0.1"></div>
+                        <div><label class="block text-sm font-medium text-gray-700">合約數量</label><input type="number" class="calc-contracts mt-1 block w-full rounded-md border-gray-300" value="1"></div>
+                        <button class="calculate-btn w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">計算</button>
+                    </div>
+                    <div class="space-y-3 p-4 rounded-lg bg-gray-50">
+                        <h3 class="text-lg font-semibold">計算結果：</h3>
+                        <div class="calc-results-display space-y-2 text-sm"></div>
+                        <div class="profit-loss-chart-container mt-4" style="height:250px;"><canvas class="pl-chart"></canvas></div>
+                    </div>
+                </div>`;
+            
+            const calcBtn = container.querySelector('.calculate-btn');
+            calcBtn.addEventListener('click', () => calculateAndDisplay(page, strategy));
+            calculateAndDisplay(page, strategy);
+        }
+
+        function calculateAndDisplay(page, strategy) {
+            const strike = parseFloat(page.querySelector('.calc-strike').value);
+            const premium = parseFloat(page.querySelector('.calc-premium').value);
+            const contracts = parseInt(page.querySelector('.calc-contracts').value);
+            if (isNaN(strike) || isNaN(premium) || isNaN(contracts) || contracts <= 0) return;
+            
+            const shares = contracts * 100;
+            let maxProfit, maxLoss, breakEven;
+            
+            switch (strategy) {
+                case 'longCall': maxProfit = '無限'; maxLoss = premium * shares; breakEven = strike + premium; break;
+                case 'shortCall': maxProfit = premium * shares; maxLoss = '無限'; breakEven = strike + premium; break;
+                case 'longPut': maxProfit = (strike - premium) * shares; maxLoss = premium * shares; breakEven = strike - premium; break;
+                case 'shortPut': maxProfit = premium * shares; maxLoss = (strike - premium) * shares; breakEven = strike - premium; break;
+            }
+
+            page.querySelector('.calc-results-display').innerHTML = `
+                <p>最大利潤：<span class="font-bold text-green-600">${typeof maxProfit === 'number' ? '$' + maxProfit.toFixed(2) : maxProfit}</span></p>
+                <p>最大虧損：<span class="font-bold text-red-600">${typeof maxLoss === 'number' ? '$' + maxLoss.toFixed(2) : maxLoss}</span></p>
+                <p>打和點：<span class="font-bold text-gray-800">$${breakEven.toFixed(2)}</span></p>
+            `;
+            updateChart(page, strategy, strike, premium);
+        }
+
+        function updateChart(page, strategy, strike, premium) {
+            const chartCanvas = page.querySelector('.pl-chart');
+            if (!chartCanvas) return;
+            const ctx = chartCanvas.getContext('2d');
+            const isBuyer = strategy.startsWith('long');
+            const data = { labels: [], datasets: [{ data: [], borderWidth: 2, tension: 0.1, pointRadius: 0, fill: true,
+                borderColor: isBuyer ? 'rgba(22, 163, 74, 1)' : 'rgba(220, 38, 38, 1)',
+                backgroundColor: isBuyer ? 'rgba(22, 163, 74, 0.2)' : 'rgba(220, 38, 38, 0.2)' }] };
+            
+            const range = strike * 0.2;
+            for (let i = -20; i <= 20; i++) {
+                const price = strike + i * (range / 20);
+                data.labels.push(price.toFixed(2));
+                let profit = 0;
+                switch (strategy) {
+                    case 'longCall': profit = Math.max(-premium, price - strike - premium); break;
+                    case 'shortCall': profit = Math.min(premium, strike - price + premium); break;
+                    case 'longPut': profit = Math.max(-premium, strike - price - premium); break;
+                    case 'shortPut': profit = Math.min(premium, price - strike + premium); break;
+                }
+                data.datasets[0].data.push(profit);
+            }
+            
+            if (chartCanvas.chart) chartCanvas.chart.destroy();
+            chartCanvas.chart = new Chart(ctx, { type: 'line', data: data,
+                options: { responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                    scales: { y: { title: { display: true, text: '每股損益 ($)' } }, x: { title: { display: true, text: '結算股價 ($)' } } } }
+            });
+        }
+        
+        function initializeQuiz(page, strategy) {
+            const container = page.querySelector('.quiz-section');
+            let currentQ = 0;
+            let score = 0;
+            const questions = strategyData[strategy].quiz;
+
+            const showQuestion = () => {
+                const q = questions[currentQ];
+                container.innerHTML = `
+                    <div class="quiz-container">
+                        <p class="font-semibold">${currentQ + 1}. ${q.q}</p>
+                        <div class="space-y-3 mt-3">${q.o.map(o => `<div class="quiz-option p-3 border rounded-lg">${o}</div>`).join('')}</div>
+                        <div class="explanation hidden mt-3 p-3 rounded-lg text-sm"></div>
+                    </div>
+                    <button class="next-q-btn hidden mt-4 mx-auto block bg-blue-600 text-white py-2 px-3 rounded-lg">下一題</button>
+                    <div class="quiz-result hidden mt-4 text-center font-bold"></div>
+                `;
+                container.querySelectorAll('.quiz-option').forEach(item => item.addEventListener('click', selectAnswer));
+            };
+            
+            const selectAnswer = (e) => {
+                const selected = e.target;
+                const answer = questions[currentQ].a;
+                container.querySelectorAll('.quiz-option').forEach(item => {
+                    item.removeEventListener('click', selectAnswer);
+                    if (item.textContent.trim() === answer) item.classList.add('correct');
+                });
+                const explDiv = container.querySelector('.explanation');
+                if (selected.textContent.trim() === answer) {
+                    selected.classList.add('correct');
+                    explDiv.innerHTML = `<strong class="text-green-700">答對了！</strong> ${questions[currentQ].e}`;
+                    explDiv.className = 'explanation mt-3 p-3 rounded-lg text-sm bg-green-100';
+                    score++;
+                } else {
+                    selected.classList.add('incorrect');
+                    explDiv.innerHTML = `<strong class="text-red-700">答錯了。</strong> ${questions[currentQ].e}`;
+                    explDiv.className = 'explanation mt-3 p-3 rounded-lg text-sm bg-red-100';
+                }
+                explDiv.classList.remove('hidden');
+                const nextBtn = container.querySelector('.next-q-btn');
+                nextBtn.classList.remove('hidden');
+                if (currentQ === questions.length - 1) nextBtn.textContent = '查看總結';
+            };
+
+            container.addEventListener('click', (e) => {
+                if (e.target.classList.contains('next-q-btn')) {
+                    currentQ++;
+                    if (currentQ < questions.length) {
+                        showQuestion();
+                    } else {
+                        container.querySelector('.quiz-container').innerHTML = '';
+                        e.target.style.display = 'none';
+                        const resDiv = container.querySelector('.quiz-result');
+                        resDiv.innerHTML = `測驗完成！您答對了 ${score} / ${questions.length} 題。`;
+                        resDiv.classList.remove('hidden');
+                    }
+                }
+            });
+            showQuestion();
+        }
+
+    </script>
+</body>
+</html>
