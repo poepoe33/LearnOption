@@ -97,6 +97,53 @@
 
         <!-- Main Menu -->
         <div id="main-menu">
+            <!-- Mindset Section -->
+            <div class="card p-6 mb-8 bg-white">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">誠.保羅之期權策略心法</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- By Position -->
+                    <div>
+                        <h3 class="font-bold text-lg text-center mb-3">心法一：根據持倉狀況決策</h3>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <h4 class="font-semibold">✅ 有貨在手</h4>
+                                <div class="mt-2 space-y-2">
+                                    <p class="text-xs text-gray-600">Short Call<br><span class="text-blue-600 font-medium">(覆蓋性出售，收租)</span></p>
+                                    <p class="text-xs text-gray-600">Long Put<br><span class="text-blue-600 font-medium">(買入保險，防災)</span></p>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-orange-50 rounded-lg">
+                                <h4 class="font-semibold">❌ 手上無貨</h4>
+                                 <div class="mt-2 space-y-2">
+                                    <p class="text-xs text-gray-600">Long Call<br><span class="text-orange-600 font-medium">(以小博大，追升勢)</span></p>
+                                    <p class="text-xs text-gray-600">Short Put<br><span class="text-orange-600 font-medium">(收取現金，等接貨)</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- By Market View -->
+                    <div>
+                        <h3 class="font-bold text-lg text-center mb-3">心法二：根據市場方向決策</h3>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div class="p-4 bg-green-50 rounded-lg">
+                                <h4 class="font-semibold">📈 看好後市 (Bullish)</h4>
+                                 <div class="mt-2 space-y-2">
+                                     <p class="text-xs text-gray-600">Long Call<br><span class="text-green-600 font-medium">(進取看漲)</span></p>
+                                    <p class="text-xs text-gray-600">Short Put<br><span class="text-green-600 font-medium">(溫和看漲)</span></p>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-red-50 rounded-lg">
+                                <h4 class="font-semibold">📉 看淡後市 (Bearish)</h4>
+                                <div class="mt-2 space-y-2">
+                                    <p class="text-xs text-gray-600">Long Put<br><span class="text-red-600 font-medium">(進取看跌)</span></p>
+                                    <p class="text-xs text-gray-600">Short Call<br><span class="text-red-600 font-medium">(溫和看跌)</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="main-menu-card p-6" onclick="showStrategy('longCall')">
                     <h2 class="text-2xl font-bold text-green-600">Long Call (買入認購)</h2>
